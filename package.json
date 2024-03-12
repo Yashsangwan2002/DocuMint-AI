@@ -12,6 +12,8 @@
     "@kinde-oss/kinde-auth-nextjs": "^2.1.15",
     "@radix-ui/react-slot": "^1.0.2",
     "@tailwindcss/typography": "^0.5.10",
+    "@trpc/client": "^11.0.0-next-beta.318",
+    "@trpc/server": "^11.0.0-next-beta.318",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.356.0",
