@@ -36,6 +36,7 @@ const onUploadComplete = async ({
     url: string
   }
 }) => {
+  console.log('onUploadComplete invoked');
   const isFileExist = await db.file.findFirst({
     where: {
       key: file.key,
@@ -43,7 +44,6 @@ const onUploadComplete = async ({
   })
 
   if (isFileExist) return
-
   const createdFile = await db.file.create({
     data: {
       key: file.key,
@@ -53,20 +53,15 @@ const onUploadComplete = async ({
       uploadStatus: 'PROCESSING',
     },
   })
-
   try {
     const response = await fetch(
       `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
     )
 
     const blob = await response.blob()
-
     const loader = new PDFLoader(blob)
-
     const pageLevelDocs = await loader.load()
-
     const pagesAmt = pageLevelDocs.length
-
     const { subscriptionPlan } = metadata
     const { isSubscribed } = subscriptionPlan
 
@@ -77,6 +72,14 @@ const onUploadComplete = async ({
       pagesAmt >
       PLANS.find((plan) => plan.name === 'Free')!
         .pagesPerPdf
+
+
+
+        console.log(`Pages Amount: ${pagesAmt}`);
+        console.log(`Is Subscribed: ${isSubscribed}`);
+        console.log(`Is Pro Exceeded: ${isProExceeded}`);
+        console.log(`Is Free Exceeded: ${isFreeExceeded}`);
+        
 
     if (
       (isSubscribed && isProExceeded) ||
@@ -118,6 +121,7 @@ const onUploadComplete = async ({
       },
     })
   } catch (err) {
+    console.log(err);
     await db.file.update({
       data: {
         uploadStatus: 'FAILED',
