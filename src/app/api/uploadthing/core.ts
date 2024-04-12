@@ -49,14 +49,13 @@ const onUploadComplete = async ({
       key: file.key,
       name: file.name,
       userId: metadata.userId,
-      url: `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`,
+      // url: `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`,
+      url: file.url,
       uploadStatus: 'PROCESSING',
     },
   })
   try {
-    const response = await fetch(
-      `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`
-    )
+    const response = await fetch(file.url)
 
     const blob = await response.blob()
     const loader = new PDFLoader(blob)
@@ -94,15 +93,15 @@ const onUploadComplete = async ({
         },
       })
     }
-
+    console.log("h1");
     // vectorize and index entire document
     const pinecone = await getPineconeClient()
-    const pineconeIndex = pinecone.Index('quill')
-
+    const pineconeIndex = pinecone.Index('docmint')
+    console.log("h2");
     const embeddings = new OpenAIEmbeddings({
       openAIApiKey: process.env.OPENAI_API_KEY,
     })
-
+    console.log("h3");
     await PineconeStore.fromDocuments(
       pageLevelDocs,
       embeddings,
@@ -111,7 +110,7 @@ const onUploadComplete = async ({
         namespace: createdFile.id,
       }
     )
-
+    console.log("h4");
     await db.file.update({
       data: {
         uploadStatus: 'SUCCESS',
@@ -120,6 +119,7 @@ const onUploadComplete = async ({
         id: createdFile.id,
       },
     })
+    console.log("h5");
   } catch (err) {
     console.log(err);
     await db.file.update({
